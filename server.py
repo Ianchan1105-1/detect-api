@@ -5,7 +5,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-DB_PATH = "../database/detect.db"
+DB_PATH = "detect.db"
 
 def get_latest_record():
     conn = sqlite3.connect(DB_PATH)
@@ -20,8 +20,10 @@ def get_latest_record():
             "timestamp": row[1]
         }
     else:
-        return None
-
+        return {
+            "detected_number": "無資料",
+            "timestamp": "無資料"
+        }
 
 @app.route("/update", methods=["POST"])
 def update_data():
@@ -39,19 +41,7 @@ def update_data():
 
     return jsonify({"status": "success"})
 
-
 @app.route("/data", methods=["GET"])
 def get_data():
-    latest = get_latest_record()
+    return jsonify(get_latest_record())
 
-    if latest is None:
-        return jsonify({
-            "detected_number": "無資料",
-            "timestamp": "無資料"
-        })
-
-    return jsonify(latest)
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
